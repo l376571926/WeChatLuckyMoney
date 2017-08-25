@@ -3,6 +3,8 @@ package xyz.monkeytong.hongbao.utils;
 import android.graphics.Rect;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import com.socks.library.KLog;
+
 /**
  * Created by Zhongyi on 1/21/16.
  */
@@ -14,11 +16,15 @@ public class HongbaoSignature {
         try {
             /* The hongbao container node. It should be a LinearLayout. By specifying that, we can avoid text messages. */
             AccessibilityNodeInfo hongbaoNode = node.getParent();
+            if (hongbaoNode == null) {
+                KLog.e("红包父节点为空");
+                return false;
+            }
             if (!"android.widget.LinearLayout".equals(hongbaoNode.getClassName())) return false;
 
             /* The text in the hongbao. Should mean something. */
             String hongbaoContent = hongbaoNode.getChild(0).getText().toString();
-            if (hongbaoContent == null || "查看红包".equals(hongbaoContent)) return false;
+            if ("查看红包".equals(hongbaoContent)) return false;
 
             /* Check the user's exclude words list. */
             String[] excludeWordsArray = excludeWords.split(" +");

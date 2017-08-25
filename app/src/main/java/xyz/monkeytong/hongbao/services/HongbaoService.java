@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
@@ -24,6 +23,9 @@ import java.util.List;
 import xyz.monkeytong.hongbao.utils.HongbaoSignature;
 import xyz.monkeytong.hongbao.utils.PowerUtil;
 
+/**
+ * 1.微信在后台时，自动抢红包测试成功
+ */
 public class HongbaoService extends AccessibilityService implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String WECHAT_DETAILS_EN = "Details";
     private static final String WECHAT_DETAILS_CH = "红包详情";
@@ -33,9 +35,6 @@ public class HongbaoService extends AccessibilityService implements SharedPrefer
     private static final String WECHAT_VIEW_SELF_CH = "查看红包";
     private static final String WECHAT_VIEW_OTHERS_CH = "领取红包";
     private static final String WECHAT_NOTIFICATION_TIP = "[微信红包]";
-    /**
-     * LuckyMoneyReceiveUI-->En_fba4b94f(微信版本6.5.10)
-     */
     private static final String WECHAT_LUCKMONEY_RECEIVE_ACTIVITY = "En_fba4b94f";
     private static final String WECHAT_LUCKMONEY_DETAIL_ACTIVITY = "LuckyMoneyDetailUI";
     private static final String WECHAT_LUCKMONEY_GENERAL_ACTIVITY = "LauncherUI";
@@ -261,7 +260,7 @@ public class HongbaoService extends AccessibilityService implements SharedPrefer
             if (this.signature.generateSignature(node1, excludeWords)) {
                 mLuckyMoneyReceived = true;
                 mReceiveNode = node1;
-                Log.d("sig", this.signature.toString());
+                KLog.e(this.signature.toString());
             }
             return;
         }
@@ -284,21 +283,21 @@ public class HongbaoService extends AccessibilityService implements SharedPrefer
             mMutex = false;
             mLuckyMoneyPicked = false;
             mUnpackCount = 0;
+            KLog.e("执行返回操作");
             performGlobalAction(GLOBAL_ACTION_BACK);
             signature.commentString = generateCommentString();
+            performGlobalAction(GLOBAL_ACTION_HOME);//抢完红包后切换微信到后台，否则下一个红包到来时无法自动抢
         }
     }
 
     private void sendComment() {
         try {
-            AccessibilityNodeInfo outNode =
-                    getRootInActiveWindow().getChild(0).getChild(0);
+            AccessibilityNodeInfo outNode =                    getRootInActiveWindow().getChild(0).getChild(0);
             AccessibilityNodeInfo nodeToInput = outNode.getChild(outNode.getChildCount() - 1).getChild(0).getChild(1);
 
             if ("android.widget.EditText".equals(nodeToInput.getClassName())) {
                 Bundle arguments = new Bundle();
-                arguments.putCharSequence(AccessibilityNodeInfo
-                        .ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, signature.commentString);
+                arguments.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, signature.commentString);
                 nodeToInput.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments);
             }
         } catch (Exception e) {
@@ -347,10 +346,6 @@ public class HongbaoService extends AccessibilityService implements SharedPrefer
     @Override
     public void onServiceConnected() {
         super.onServiceConnected();
-        this.watchFlagsFromPreference();
-    }
-
-    private void watchFlagsFromPreference() {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 

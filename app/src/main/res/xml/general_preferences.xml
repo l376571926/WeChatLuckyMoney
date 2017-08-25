@@ -17,7 +17,7 @@
                 android:title="@string/watch_list"
                 android:summary="@string/watch_list_hint"
                 android:layout="@layout/preference_checkbox"
-                android:defaultValue="false"/>
+                android:defaultValue="true"/>
     </PreferenceCategory>
     <PreferenceCategory
             android:title="@string/anti_block_options"
