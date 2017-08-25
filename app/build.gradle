@@ -42,4 +42,6 @@ android {
      //其中latest.release指代最新版本号，也可以指定明确的版本号，例如2.2.0
      compile 'com.android.support:support-v4:25.1.0'
      compile 'com.android.support:appcompat-v7:25.1.0'
+
+     compile 'com.github.zhaokaiqiang.klog:library:1.6.0'
  }

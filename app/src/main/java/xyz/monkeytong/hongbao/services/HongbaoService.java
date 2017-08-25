@@ -7,19 +7,22 @@ import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Path;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.graphics.Path;
 import android.preference.PreferenceManager;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
-import android.util.DisplayMetrics;
-import xyz.monkeytong.hongbao.utils.HongbaoSignature;
-import xyz.monkeytong.hongbao.utils.PowerUtil;
+
+import com.socks.library.KLog;
 
 import java.util.List;
+
+import xyz.monkeytong.hongbao.utils.HongbaoSignature;
+import xyz.monkeytong.hongbao.utils.PowerUtil;
 
 public class HongbaoService extends AccessibilityService implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String WECHAT_DETAILS_EN = "Details";
@@ -30,7 +33,10 @@ public class HongbaoService extends AccessibilityService implements SharedPrefer
     private static final String WECHAT_VIEW_SELF_CH = "查看红包";
     private static final String WECHAT_VIEW_OTHERS_CH = "领取红包";
     private static final String WECHAT_NOTIFICATION_TIP = "[微信红包]";
-    private static final String WECHAT_LUCKMONEY_RECEIVE_ACTIVITY = "LuckyMoneyReceiveUI";
+    /**
+     * LuckyMoneyReceiveUI-->En_fba4b94f(微信版本6.5.10)
+     */
+    private static final String WECHAT_LUCKMONEY_RECEIVE_ACTIVITY = "En_fba4b94f";
     private static final String WECHAT_LUCKMONEY_DETAIL_ACTIVITY = "LuckyMoneyDetailUI";
     private static final String WECHAT_LUCKMONEY_GENERAL_ACTIVITY = "LauncherUI";
     private static final String WECHAT_LUCKMONEY_CHATTING_ACTIVITY = "ChattingUI";
@@ -58,7 +64,8 @@ public class HongbaoService extends AccessibilityService implements SharedPrefer
 
         /* 检测通知消息 */
         if (!mMutex) {
-            if (sharedPreferences.getBoolean("pref_watch_notification", false) && watchNotifications(event)) return;
+            if (sharedPreferences.getBoolean("pref_watch_notification", false) && watchNotifications(event))
+                return;
             if (sharedPreferences.getBoolean("pref_watch_list", false) && watchList(event)) return;
             mListMutex = false;
         }
@@ -126,14 +133,14 @@ public class HongbaoService extends AccessibilityService implements SharedPrefer
                 dispatchGesture(gestureDescription, new GestureResultCallback() {
                     @Override
                     public void onCompleted(GestureDescription gestureDescription) {
-                        Log.d("test", "onCompleted");
+                        KLog.e("onCompleted");
                         mMutex = false;
                         super.onCompleted(gestureDescription);
                     }
 
                     @Override
                     public void onCancelled(GestureDescription gestureDescription) {
-                        Log.d("test", "onCancelled");
+                        KLog.e("onCancelled");
                         mMutex = false;
                         super.onCancelled(gestureDescription);
                     }
